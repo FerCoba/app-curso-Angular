@@ -12,7 +12,7 @@ export class RecipeListComponent implements OnInit {
 
   recipes: Recipe[] = [
     new Recipe('A Test Recipe', 'Thi is a simple Test', 'https://blog.restorando.com/wp-content/uploads/2017/12/flan-3-1.jpg' ),
-    new Recipe('A Test Recipe', 'Thi is a simple Test', 'https://blog.restorando.com/wp-content/uploads/2017/12/flan-3-1.jpg' )
+    new Recipe('Other Test Recipe', 'Thi is a simple Other Test', 'https://blog.restorando.com/wp-content/uploads/2017/12/flan-3-1.jpg' )
   ];
 
   constructor() { }
