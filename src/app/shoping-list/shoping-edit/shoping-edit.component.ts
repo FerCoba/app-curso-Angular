@@ -1,6 +1,8 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Ingredient } from 'src/app/shared/ingredient.model';
 import { ShopingListService } from '../shoping-list.service';
+import { NgForm } from '@angular/forms';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-shoping-edit',
@@ -9,19 +11,52 @@ import { ShopingListService } from '../shoping-list.service';
 })
 export class ShopingEditComponent implements OnInit {
 
-  @ViewChild('nameInput') nameInputRef: ElementRef;
-  @ViewChild('amountInput') amountInputRef: ElementRef;
+  @ViewChild('f') slForm: NgForm;
+  suscription: Subscription;
+  editMode = false;
+  editItemIndex: number;
+  editedItem: Ingredient;
 
   constructor(private shopingListService: ShopingListService) { 
   }
 
   ngOnInit() {
+    this.suscription = this.shopingListService.startedEditing.
+      subscribe((index: number) => {
+        this.editItemIndex = index;
+        this.editMode = true;
+        this.editedItem = this.shopingListService.getIngredient(index);
+        this.slForm.setValue({
+          name: this.editedItem.name,
+          amount: this.editedItem.amount
+        })
+      }
+    );
   }
 
-  onAddItem(){
-    const ingredientName = this.nameInputRef.nativeElement.value;
-    const ingredientAmount = this.nameInputRef.nativeElement.value;
-    const newIngredient = new Ingredient(ingredientName,ingredientAmount);
-    this.shopingListService.addIngredient(newIngredient);
+  onSubmit(form: NgForm){
+    const value = form.value;
+    const newIngredient = new Ingredient(value.name,value.amount);
+    if(this.editMode){
+      this.shopingListService.updateIngredient(this.editItemIndex, newIngredient);
+    }else{
+      this.shopingListService.addIngredient(newIngredient);
+    }
+    this.editMode = false;
+    form.reset();
+  }
+
+  onClear(){
+    this.slForm.reset();
+    this.editMode = false;
+  }
+
+  onDelete(){
+    this.shopingListService.deleteIngredient(this.editItemIndex);
+    this.onClear();
+  }
+
+  ngOnDestroy() {
+    this.suscription.unsubscribe();
   }
 }
